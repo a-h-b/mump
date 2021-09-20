@@ -15,19 +15,19 @@ yaml.dump(config, open_output('multi.config.yaml'), allow_unicode=True,default_f
 # include workflows for data collection, catalogue, dRep and DB
 if 'collate' in MULTI_STEPS:
     include:
-        "workflow/rules/modules/multi/Collate.smk"
+        "workflow/rules/modules/Collate.smk"
 if 'catalogue' in MULTI_STEPS:
     include:
-        "workflow/rules/modules/multi/Catalogue.smk"
+        "workflow/rules/modules/Catalogue.smk"
 if 'dereplicate' in MULTI_STEPS:
     include:
-        "workflow/rules/modules/multi/Dereplicate.smk"
+        "workflow/rules/modules/Dereplicate.smk"
 if 'DB' in MULTI_STEPS:
     include:
-        "workflow/rules/modules/multi/DB.smk"
+        "workflow/rules/modules/DB.smk"
 if 'visualize' in MULTI_STEPS:
     include:
-        "workflow/rules/modules/multi/Vis.smk"
+        "workflow/rules/modules/Vis.smk"
 
 localrules: SamplesPrint, ALL
 # master command
@@ -40,7 +40,7 @@ rule ALL:
 
 rule SamplesPrint:
     input:
-        config['sample_table']
+        sam_path
     output:
         "sample_table.tsv"
     run:
@@ -59,7 +59,8 @@ rule bwa_index:
         runtime = "24:00:00",
         mem = BIGMEMCORE
     threads: 1
-    conda: ENVDIR + "/IMP_mapping.yaml"
+    conda: 
+        os.path.join(ENVDIR, "IMP_mapping.yaml")
     log: "logs/bwa_index.{fasta}.log"
     message: "bwa_index: Indexing {wildcards.fasta} for bwa."
     shell:

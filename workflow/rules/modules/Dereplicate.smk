@@ -1,30 +1,30 @@
 binctrl = []
 if config['dereplication']['simple_derep']:
     include:
-        "../../Dereplicate/dRep.simple.smk"
+        "../Dereplicate/dRep.simple.smk"
     include:
-            "../../Dereplicate/dRep_sum.simple.smk"
+            "../Dereplicate/dRep_sum.simple.smk"
     binctrl.append("Dereplication/dereplicated_bin_stats.tsv")
 if config['dereplication']['cross_mapping_rebinning']['do']:
     include:
-        "../../Dereplicate/cross_mapping.smk"
+        "../Dereplicate/cross_mapping.smk"
     include:
-        "../../Dereplicate/MetaBAT.smk"
+        "../Dereplicate/MetaBAT.smk"
     include:
-        "../../Dereplicate/MaxBin.smk"
+        "../Dereplicate/MaxBin.smk"
     include:
-        "../../Dereplicate/dastool.smk"
+        "../Dereplicate/dastool.smk"
     include:
-        "../../Dereplicate/grid.smk"
+        "../Dereplicate/grid.smk"
     include:
-        "../../Dereplicate/dRep.multi.smk"
+        "../Dereplicate/dRep.multi.smk"
     binctrl.append("Dereplication/rebinned_bin_stats.tsv")
     if config['dereplication']['GTDBtk']:
         include:
-            "../../Dereplicate/gtdbtk_multi.smk"
+            "../Dereplicate/gtdbtk_multi.smk"
     else:
         include:
-            "../../Dereplicate/dRep_sum.multi.smk"
+            "../Dereplicate/dRep_sum.multi.smk"
 
 
 # master command

@@ -1,6 +1,6 @@
 rule cross_mapping:
     input:
-        lambda wildcards: expand("{raw_directory}/Preprocessing/mg.{read}.preprocessed.fq",
+        lambda wildcards: expand("{raw_directory}/Preprocessing/mg.{read}.preprocessed.fq.gz",
                 raw_directory=samples.path[wildcards.cross_sample],
                 read=["r1","r2","se"]),
         lambda wildcards: ancient(expand("{raw_directory}/Assembly/{ass}.assembly.merged.{ext}",

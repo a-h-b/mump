@@ -4,7 +4,7 @@ rule GRID_summarize:
         dastool=expand("Dereplication/{sample}/selected_DASTool_summary.txt",
                  sample=samples.loc[[a and b for a,b in zip(samples.ass == 1,samples.rebinning == "yes")],"sample"])
     output:
-        "Dereplication/dRep_multi/allSamples_bin_stats.tsv"
+        "Dereplication/dRep_allSamples_bin_stats.tsv"
     resources:
         runtime = "12:00:00",
         mem = MEMCORE
@@ -32,8 +32,8 @@ rule getMultiBins:
     run:
         selected_bins=pd.read_csv(input.bins,sep="\t")
         for BIN in selected_bins['bin']:
-            shell("cp {input.indir}/{BIN}.contigs.fa Dereplication/dRep_multi/{wildcards.sample}.{BIN}.contigs.fa")
-            shell("mkdir -p Dereplication/GRiD_multi/{wildcards.sample}.{BIN} && cp Dereplication/{wildcards.sample}/selected_DASTool_bins/{BIN}.contigs.fa Dereplication/GRiD_multi/{wildcards.sample}.{BIN}/contigs.fa")
+            shell("cp {input.indir}/{BIN}.contigs.fa Dereplication/dRep_{wildcards.sample}.{BIN}.contigs.fa")
+            shell("mkdir -p Dereplication/GRiD_{wildcards.sample}.{BIN} && cp Dereplication/{wildcards.sample}/selected_DASTool_bins/{BIN}.contigs.fa Dereplication/GRiD_{wildcards.sample}.{BIN}/contigs.fa")
         shell("touch {output}")
 
 
@@ -47,14 +47,14 @@ checkpoint pre_grid:
 
 rule grid:
     input:
-       "Dereplication/GRiD_multi/{clusterID}/contigs.fa",
-       "Dereplication/GRiD_multi/{clusterID}/reads.fastq.gz"
+       "Dereplication/GRiD_{clusterID}/contigs.fa",
+       "Dereplication/GRiD_{clusterID}/reads.fastq.gz"
     output:
-        "Dereplication/GRiD_multi/{clusterID}/grid/reads.GRiD.txt",
-        "Dereplication/GRiD_multi/{clusterID}/grid/reads.pdf"
+        "Dereplication/GRiD_{clusterID}/grid/reads.GRiD.txt",
+        "Dereplication/GRiD_{clusterID}/grid/reads.pdf"
     params:
-        clusterInput= "Dereplication/GRiD_multi/{clusterID}",
-        outdir = "Dereplication/GRiD_multi/{clusterID}/grid"
+        clusterInput= "Dereplication/GRiD_{clusterID}",
+        outdir = "Dereplication/GRiD_{clusterID}/grid"
     resources:
         runtime = "24:00:00",
         mem = BIGMEMCORE
@@ -69,9 +69,9 @@ rule grid:
 
 rule prepare_gridBed:
     input:
-        "Dereplication/GRiD_multi/{clusterID}/contigs.fa"
+        "Dereplication/GRiD_{clusterID}/contigs.fa"
     output:
-        temporary("Dereplication/GRiD_multi/{clusterID}/contigs.bed")
+        temporary("Dereplication/GRiD_{clusterID}/contigs.bed")
     resources:
         runtime = "2:00:00",
         mem = MEMCORE
@@ -87,9 +87,9 @@ rule prepare_gridReads:
     input:
         lambda wildcards: expand("{raw_directory}/Assembly/mg.reads.sorted.bam",
                 raw_directory=samples.path[wildcards.sample]),
-        "Dereplication/GRiD_multi/{sample}.{clusterID}/contigs.bed"
+        "Dereplication/GRiD_{sample}.{clusterID}/contigs.bed"
     output:
-        temporary("Dereplication/GRiD_multi/{sample}.{clusterID}/reads.fastq.gz")
+        temporary("Dereplication/GRiD_{sample}.{clusterID}/reads.fastq.gz")
     wildcard_constraints:
         sample="[^.]*"
     resources:

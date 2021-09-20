@@ -10,6 +10,7 @@ db
 __pycache__
 gitold/
 databases/*
+mump
 IMP_DBs
 IMP_DBs/*
 tmp/*
@@ -19,4 +20,3 @@ conda/
 test/*
 test*
 testoutput/
-runIMP3_multi_tmux.sh

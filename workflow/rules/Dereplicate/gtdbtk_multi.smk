@@ -2,12 +2,12 @@ rule GTDBtk_bins:
     input:
         "Dereplication/dRep_multi_out/dereplicated_genomes/{clusterID}.contigs.fa"
     output:
-        directory("Dereplication/GTDB_multi/{clusterID}.GTDB_out")
+        directory("Dereplication/GTDB_{clusterID}.GTDB_out")
     resources:
         runtime = "12:00:00",
         mem = BIGMEMCORE
     params:
-        outdir = "Dereplication/GTDB_multi/{clusterID}"
+        outdir = "Dereplication/GTDB_{clusterID}"
     conda: ENVDIR + "/IMP_gtdbtk.yaml"
     log: "logs/dereplication_GTDBtk_bins.{clusterID}.log"
     message: "GTDBtk_bins: Classifiying {wildcards.clusterID} using GTDBtk."
@@ -25,7 +25,7 @@ rule GTDBtk_summarize:
         gtdb = gather_multi_GTDB_bins,
         dRep = expand("Dereplication/dRep_multi_out/data_tables/{file}.csv",
                 file=["Chdb","Cdb","Sdb","Wdb","Widb","Ndb"]),
-        bins= "Dereplication/dRep_multi/allSamples_bin_stats.tsv"
+        bins= "Dereplication/dRep_allSamples_bin_stats.tsv"
     output:
         "Dereplication/dRep_multi_out/dereplicated_rebin_stats.tsv",
         report("Dereplication/rebinned_bin_stats.tsv",category="Re-binning and dereplication")

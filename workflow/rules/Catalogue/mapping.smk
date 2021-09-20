@@ -1,6 +1,6 @@
 rule mapping_on_catalogue:
     input:
-        lambda wildcards: expand("{raw_directory}/Preprocessing/{{type}}.{read}.preprocessed.fq",
+        lambda wildcards: expand("{raw_directory}/Preprocessing/{{type}}.{read}.preprocessed.fq.gz",
                 raw_directory=samples.loc[samples["sample"] == wildcards.sample,"path"],
                 read=["r1","r2","se"]),
         expand("Catalogue/catalogue.{ext}",ext=["fasta.amb","fasta.bwt","fasta.pac","fasta.sa","fasta.ann","fasta"])

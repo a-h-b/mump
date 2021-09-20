@@ -276,12 +276,12 @@ def getCatIn(wildcards):
     
 def gather_multi_bins(wildcards):
     checkpoint_output = checkpoints.pre_grid.get(**wildcards).output[0]
-    return expand("Dereplication/GRiD_multi/{i}/grid/reads.GRiD.txt",
-           i=glob_wildcards("Dereplication/GRiD_multi/{i}/contigs.fa").i)
+    return expand("Dereplication/GRiD_{i}/grid/reads.GRiD.txt",
+           i=glob_wildcards("Dereplication/GRiD_{i}/contigs.fa").i)
     
 def gather_multi_GTDB_bins(wildcards):
     checkpoint_output = checkpoints.dRep_multi.get(**wildcards).output[0]
-    return expand("Dereplication/GTDB_multi/{i}.GTDB_out",
+    return expand("Dereplication/GTDB_{i}.GTDB_out",
            i=glob_wildcards("Dereplication/dRep_multi_out/dereplicated_genomes/{i}.contigs.fa").i)
            
 def getBam(wildcards):

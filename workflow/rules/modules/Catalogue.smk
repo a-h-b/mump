@@ -1,13 +1,13 @@
 include:
-    "../../Catalogue/cluster.smk"
+    "../Catalogue/cluster.smk"
 if config['catalogue']['kraken']['do']:
     include:
-        "../../Catalogue/kraken_genes.smk"
+        "../Catalogue/kraken_genes.smk"
 if config['catalogue']['mapping']['do']:
     include:
-        "../../Catalogue/mapping.smk"
+        "../Catalogue/mapping.smk"
 include:
-    "../../Catalogue/table.smk"
+    "../Catalogue/table.smk"
 
 
 # master command

@@ -48,7 +48,7 @@ rule maxbin_prep:
     input:
         lambda wildcards: expand("Dereplication/cross_mapping/{{sample}}.contig_depth0.{cross_sample}.txt",
                cross_sample=samples.loc[[a and b for a,b in zip(samples.mg == 1,samples["sample"] != wildcards.sample)],"sample"]),
-        lambda wildcards: expand("{raw_directory}/Stats/mg/{ass}.assembly.contig_depth.0.txt",
+        lambda wildcards: expand("{raw_directory}/Stats/mg/{ass}.assembly.contig_depth.txt",
                raw_directory=samples.path[wildcards.sample],
                ass=samples.assembly_type[wildcards.sample])
     output:

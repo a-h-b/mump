@@ -108,16 +108,16 @@ if [ "$UNLOCK" = true ]; then
     echo "Unlocking working directory."
     eval $LOADING_MODULES
     eval $CONDA_START
-    snakemake --cores 1 -s $DIR/multi_Snakefile --unlock --configfile $CONFIGFILE
+    snakemake --cores 1 -s $DIR/Snakefile --unlock --configfile $CONFIGFILE
     eval $CONDA_END
 elif [ "$DRYRUN" = true ]; then
     echo "Dryrun."
     eval $LOADING_MODULES
     eval $CONDA_START
     if [ "$LOCK_SETTINGS" = true ]; then
-        snakemake --cores 1 -s $DIR/multi_Snakefile --configfile $CONFIGFILE --config sessionName=$JNAME locked_normalMem=$NORMAL_MEM_EACH locked_bigMem=$BIGMEM_MEM_EACH locked_bigCores=$BIGMEM_CORES locked_bigTotal=$BIGMEM_TOTAL settingsLocked=true sessionKind=dryrun --dryrun $TARGET
+        snakemake --cores 1 -s $DIR/Snakefile --configfile $CONFIGFILE --config sessionName=$JNAME locked_normalMem=$NORMAL_MEM_EACH locked_bigMem=$BIGMEM_MEM_EACH locked_bigCores=$BIGMEM_CORES locked_bigTotal=$BIGMEM_TOTAL settingsLocked=true sessionKind=dryrun --dryrun $TARGET
     else
-        snakemake --cores 1 -s $DIR/multi_Snakefile --config sessionName=$JNAME sessionKind=dryrun --configfile $CONFIGFILE --dryrun $TARGET
+        snakemake --cores 1 -s $DIR/Snakefile --config sessionName=$JNAME sessionKind=dryrun --configfile $CONFIGFILE --dryrun $TARGET
     fi
     eval $CONDA_END
 elif [ "$INITIAL" = true ]; then
@@ -125,9 +125,9 @@ elif [ "$INITIAL" = true ]; then
     eval $LOADING_MODULES
     eval $CONDA_START
     if [ "$LOCK_SETTINGS" = true ]; then
-        snakemake --cores 1 -s $DIR/multi_Snakefile --config locked_normalMem=$NORMAL_MEM_EACH locked_bigMem=$BIGMEM_MEM_EACH locked_bigCores=$BIGMEM_CORES locked_bigTotal=$BIGMEM_TOTAL settingsLocked=true sessionKind=dryrun --conda-create-envs-only --use-conda --conda-prefix $DIR/conda --configfile $CONFIGFILE --local-cores 1 $TARGET
+        snakemake --cores 1 -s $DIR/Snakefile --config locked_normalMem=$NORMAL_MEM_EACH locked_bigMem=$BIGMEM_MEM_EACH locked_bigCores=$BIGMEM_CORES locked_bigTotal=$BIGMEM_TOTAL settingsLocked=true sessionKind=dryrun --conda-create-envs-only --use-conda --conda-prefix $DIR/conda --configfile $CONFIGFILE --local-cores 1 $TARGET
     else
-        snakemake --cores 1 -s $DIR/multi_Snakefile --conda-create-envs-only --use-conda --conda-prefix $DIR/conda --configfile $CONFIGFILE --local-cores 1 $TARGET 
+        snakemake --cores 1 -s $DIR/Snakefile --conda-create-envs-only --use-conda --conda-prefix $DIR/conda --configfile $CONFIGFILE --local-cores 1 $TARGET 
     fi
 elif [ "$CLUSTER" = true ]; then
     if [ -z "$THREADS" ]; then
@@ -139,15 +139,15 @@ elif [ "$CLUSTER" = true ]; then
     tmux send-keys -t $JNAME "$CONDA_START >> $JNAME.stdout 2>> $JNAME.stderr" C-m
     if [ "$REPORT" = true ]; then
         if [ "$LOCK_SETTINGS" = true ]; then
-            tmux send-keys -t $JNAME "snakemake --cores $THREADS -s $DIR/multi_Snakefile --keep-going --local-cores 1 --cluster-config $DIR/config/$SCHEDULER.config.yaml --cluster \"{cluster.call} {cluster.runtime}{resources.runtime} {cluster.mem_per_cpu}{resources.mem} {cluster.threads}{threads} {cluster.partition} {cluster.stdout}\" --configfile $CONFIGFILE --config sessionName=$JNAME locked_normalMem=$NORMAL_MEM_EACH locked_bigMem=$BIGMEM_MEM_EACH locked_bigCores=$BIGMEM_CORES locked_bigTotal=$BIGMEM_TOTAL settingsLocked=true sessionKind=cluster --use-conda --conda-prefix $DIR/conda $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; snakemake --cores 1 -s $DIR/multi_Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda --report report.html $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
+            tmux send-keys -t $JNAME "snakemake --cores $THREADS -s $DIR/Snakefile --keep-going --local-cores 1 --cluster-config $DIR/config/$SCHEDULER.config.yaml --cluster \"{cluster.call} {cluster.runtime}{resources.runtime} {cluster.mem_per_cpu}{resources.mem} {cluster.threads}{threads} {cluster.partition} {cluster.stdout}\" --configfile $CONFIGFILE --config sessionName=$JNAME locked_normalMem=$NORMAL_MEM_EACH locked_bigMem=$BIGMEM_MEM_EACH locked_bigCores=$BIGMEM_CORES locked_bigTotal=$BIGMEM_TOTAL settingsLocked=true sessionKind=cluster --use-conda --conda-prefix $DIR/conda $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; snakemake --cores 1 -s $DIR/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda --report report.html $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
         else
-            tmux send-keys -t $JNAME "snakemake --cores $THREADS -s $DIR/multi_Snakefile --keep-going --local-cores 1 --cluster-config $DIR/config/$SCHEDULER.config.yaml --cluster \"{cluster.call} {cluster.runtime}{resources.runtime} {cluster.mem_per_cpu}{resources.mem} {cluster.threads}{threads} {cluster.partition} {cluster.stdout}\" --configfile $CONFIGFILE --config sessionName=$JNAME sessionKind=cluster --use-conda --conda-prefix $DIR/conda $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; snakemake --cores 1 -s $DIR/multi_Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda --report report.html $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
+            tmux send-keys -t $JNAME "snakemake --cores $THREADS -s $DIR/Snakefile --keep-going --local-cores 1 --cluster-config $DIR/config/$SCHEDULER.config.yaml --cluster \"{cluster.call} {cluster.runtime}{resources.runtime} {cluster.mem_per_cpu}{resources.mem} {cluster.threads}{threads} {cluster.partition} {cluster.stdout}\" --configfile $CONFIGFILE --config sessionName=$JNAME sessionKind=cluster --use-conda --conda-prefix $DIR/conda $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; snakemake --cores 1 -s $DIR/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda --report report.html $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
         fi
     else
         if [ "$LOCK_SETTINGS" = true ]; then
-            tmux send-keys -t $JNAME "snakemake --cores $THREADS -s $DIR/multi_Snakefile --keep-going --local-cores 1 --cluster-config $DIR/config/$SCHEDULER.config.yaml --cluster \"{cluster.call} {cluster.runtime}{resources.runtime} {cluster.mem_per_cpu}{resources.mem} {cluster.threads}{threads} {cluster.partition} {cluster.stdout}\" --configfile $CONFIGFILE --config sessionName=$JNAME locked_normalMem=$NORMAL_MEM_EACH locked_bigMem=$BIGMEM_MEM_EACH locked_bigCores=$BIGMEM_CORES locked_bigTotal=$BIGMEM_TOTAL settingsLocked=true sessionKind=cluster --use-conda --conda-prefix $DIR/conda $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
+            tmux send-keys -t $JNAME "snakemake --cores $THREADS -s $DIR/Snakefile --keep-going --local-cores 1 --cluster-config $DIR/config/$SCHEDULER.config.yaml --cluster \"{cluster.call} {cluster.runtime}{resources.runtime} {cluster.mem_per_cpu}{resources.mem} {cluster.threads}{threads} {cluster.partition} {cluster.stdout}\" --configfile $CONFIGFILE --config sessionName=$JNAME locked_normalMem=$NORMAL_MEM_EACH locked_bigMem=$BIGMEM_MEM_EACH locked_bigCores=$BIGMEM_CORES locked_bigTotal=$BIGMEM_TOTAL settingsLocked=true sessionKind=cluster --use-conda --conda-prefix $DIR/conda $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
         else
-            tmux send-keys -t $JNAME "snakemake --cores $THREADS -s $DIR/multi_Snakefile --keep-going --local-cores 1 --cluster-config $DIR/config/$SCHEDULER.config.yaml --cluster \"{cluster.call} {cluster.runtime}{resources.runtime} {cluster.mem_per_cpu}{resources.mem} {cluster.threads}{threads} {cluster.partition} {cluster.stdout}\" --configfile $CONFIGFILE --config sessionName=$JNAME sessionKind=cluster --use-conda --conda-prefix $DIR/conda $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
+            tmux send-keys -t $JNAME "snakemake --cores $THREADS -s $DIR/Snakefile --keep-going --local-cores 1 --cluster-config $DIR/config/$SCHEDULER.config.yaml --cluster \"{cluster.call} {cluster.runtime}{resources.runtime} {cluster.mem_per_cpu}{resources.mem} {cluster.threads}{threads} {cluster.partition} {cluster.stdout}\" --configfile $CONFIGFILE --config sessionName=$JNAME sessionKind=cluster --use-conda --conda-prefix $DIR/conda $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
         fi
     fi
 elif [ "$FRONTEND" = true ]; then
@@ -159,9 +159,9 @@ elif [ "$FRONTEND" = true ]; then
     tmux send-keys -t $JNAME "$LOADING_MODULES >> $JNAME.stdout 2>> $JNAME.stderr" C-m
     tmux send-keys -t $JNAME "$CONDA_START >> $JNAME.stdout 2>> $JNAME.stderr" C-m
     if [ "$REPORT" = true ]; then
-        tmux send-keys -t $JNAME "snakemake --cores $THREADS -s $DIR/multi_Snakefile --keep-going --configfile $CONFIGFILE --config sessionName=$JNAME sessionKind=tmux --use-conda --conda-prefix $DIR/conda $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; snakemake --cores 1 -s $DIR/multi_Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda --report report.html $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
+        tmux send-keys -t $JNAME "snakemake --cores $THREADS -s $DIR/Snakefile --keep-going --configfile $CONFIGFILE --config sessionName=$JNAME sessionKind=tmux --use-conda --conda-prefix $DIR/conda $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; snakemake --cores 1 -s $DIR/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda --report report.html $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
     else
-        tmux send-keys -t $JNAME "snakemake --cores $THREADS -s $DIR/multi_Snakefile --keep-going --configfile $CONFIGFILE --config sessionName=$JNAME sessionKind=tmux --use-conda --conda-prefix $DIR/conda $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
+        tmux send-keys -t $JNAME "snakemake --cores $THREADS -s $DIR/Snakefile --keep-going --configfile $CONFIGFILE --config sessionName=$JNAME sessionKind=tmux --use-conda --conda-prefix $DIR/conda $TARGET >> $JNAME.stdout 2>> $JNAME.stderr; $CONDA_END_t tmux kill-session" C-m
     fi
 elif [ "$LAPTOP" = true ]; then
     echo "Running workflow in current session - don't use this setting except with small datasets and databases."
@@ -172,18 +172,18 @@ elif [ "$LAPTOP" = true ]; then
     eval $LOADING_MODULES
     eval $CONDA_START
     if [ "$REPORT" = true ]; then
-        snakemake --cores $THREADS -s $DIR/multi_Snakefile --keep-going --configfile $CONFIGFILE --config sessionName=$JNAME sessionKind=laptop --use-conda --conda-prefix $DIR/conda $TARGET 
-        snakemake --cores $THREADS -s $DIR/multi_Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda --report report.html $TARGET 
+        snakemake --cores $THREADS -s $DIR/Snakefile --keep-going --configfile $CONFIGFILE --config sessionName=$JNAME sessionKind=laptop --use-conda --conda-prefix $DIR/conda $TARGET 
+        snakemake --cores $THREADS -s $DIR/Snakefile --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda --report report.html $TARGET 
         eval $CONDA_END
     else
-        snakemake --cores $THREADS -s $DIR/multi_Snakefile --keep-going --configfile $CONFIGFILE --config sessionName=$JNAME sessionKind=laptop --use-conda --conda-prefix $DIR/conda $TARGET 
+        snakemake --cores $THREADS -s $DIR/Snakefile --keep-going --configfile $CONFIGFILE --config sessionName=$JNAME sessionKind=laptop --use-conda --conda-prefix $DIR/conda $TARGET 
         eval $CONDA_END
     fi    
 elif [ "$REPORT" = true ]; then
     echo "Writing report."
     eval $LOADING_MODULES
     eval $CONDA_START
-    snakemake --cores 1 -s $DIR/multi_Snakefile --report report.html --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda $TARGET
+    snakemake --cores 1 -s $DIR/Snakefile --report report.html --configfile $CONFIGFILE --use-conda --conda-prefix $DIR/conda $TARGET
     eval $CONDA_END
 else
     echo "Nothing was done, please give -u, -d, -r, -c, -f, -i, or -l to start anything."

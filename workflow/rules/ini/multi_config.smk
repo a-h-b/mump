@@ -1,4 +1,5 @@
 import os
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
 import sys
 import shutil
 import gzip
@@ -33,10 +34,15 @@ OUTPUTDIR = config['outputdir']
 
 MULTI_STEPS = sorted(config['steps'].split())
 
+if os.path.isabs(os.path.expandvars(config['sample_table'])):
+    sam_path = os.path.expandvars(config['sample_table'])
+else:
+    sam_path = os.getcwd() + "/" + os.path.expandvars(config['sample_table'])
+
 try:
-    samples = pd.read_csv(os.path.expandvars(config['sample_table']),sep="\t")
+    samples = pd.read_csv(sam_path,sep="\t")
 except:
-    print("Sample table was not found. Please enter the absolute path and file name in the config file.")
+    print("Sample table was not found. Please check the path and file name in the config file.")
     raise
 if samples[['sample']].duplicated().any():
     raise Exception('sample names should be unique.')
@@ -44,9 +50,9 @@ samples = samples.set_index(["sample"],drop=False)
 samples['sample'] = samples['sample'].astype(str)
 for sam in samples['sample']:
     if not re.match(r"[0-9a-zA-Z]",sam):
-        raise Exception('please start library names with a letter or number')
-samples['sample'] = samples['sample'].str.replace('[;|.-]','_')
-samples['sample'] = samples['sample'].str.replace('_+','_')
+        raise Exception('please start sample names with a letter or number')
+samples['sample'] = samples['sample'].str.replace('[;|.-]','_', regex=True)
+samples['sample'] = samples['sample'].str.replace('_+','_', regex=True)
 if not 'path' in samples.columns:
     raise Exception("You haven't supplied the paths to the data.")
 if samples['path'].duplicated().any():
@@ -80,14 +86,14 @@ if "catalogue" in MULTI_STEPS:
             if os.path.isfile(samples.path[sam] + "/Analysis/annotation/prokka.faa"):
                 with open(samples.path[sam] + "/Analysis/annotation/prokka.faa",'r') as f:
                     line = f.readline()
-                    samples.prokka_prefix[sam] = line.split("_")[0][1:]
+                    samples.loc[samples['sample'] == sam,'prokka_prefix'] = line.split("_")[0][1:]
 if "dereplicate" in MULTI_STEPS:
     samples = samples.assign(bins=[1 if "binning" in multi_config[sam]['steps'].split() else 0 for sam in samples['sample']])
     samples = samples.assign(ass=[1 if ("assembly" in multi_config[sam]['steps'].split() or multi_config[sam]['raws']['Contigs'].split()) else 0 for sam in samples['sample']])
     samples["assembly_type"] = ""
     for sam in samples['sample']:
         if samples.ass[sam] == 1:
-            samples.assembly_type[sam] = [f.replace(".assembly.merged.fa","") for f in os.listdir(samples.path[sam] + "/Assembly/") if fnmatch.fnmatch(f,"m*.assembly.merged.fa")][0]
+            samples.loc[samples['sample'] == sam, 'assembly_type'] = [f.replace(".assembly.merged.fa","") for f in os.listdir(samples.path[sam] + "/Assembly/") if fnmatch.fnmatch(f,"m*.assembly.merged.fa")][0]
     if config['dereplication']['cross_mapping_rebinning']['do']:
         if not 'rebinning' in samples.columns:
             samples['rebinning'] = "yes"
@@ -95,6 +101,9 @@ if "dereplicate" in MULTI_STEPS:
 #print(samples.EukDetect)
 
 TYPES=config['omes'].split()
+for ome in TYPES:
+    if samples[ome].sum() == 0:
+        TYPES.remove(ome)
 
 yaml.add_representer(OrderedDict, lambda dumper, data: dumper.represent_mapping('tag:yaml.org,2002:map', data.items()))
 yaml.add_representer(tuple, lambda dumper, data: dumper.represent_sequence('tag:yaml.org,2002:seq', data))

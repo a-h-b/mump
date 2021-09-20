@@ -13,9 +13,10 @@ rule collate_stats:
     log: "logs/collate_stats.log"
     message: 'collate_stats: stats from ' + " ".join(samples.loc[samples.stats == 1,"sample"])+ '.'
     threads: 1
-    conda: ENVDIR + "/IMP_multi.yaml"
+    conda: 
+        os.path.join(ENVDIR, "IMP_multi.yaml")
     script:
-        SRCDIR + "/multi_collect_stats.R"
+        os.path.join(SRCDIR, "multi_collect_stats.R")
 
 
 localrules:  ctrl_stats_collation
