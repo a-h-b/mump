@@ -1,17 +1,25 @@
-steps: "collate catalogue dereplicate DB visualize"
+steps: "snps"
+# possible steps are snps collate catalogue dereplicate DB visualize
 mem:
   normal_mem_per_core_gb: 4
-  big_mem_total_gb: 800
-  big_mem_cores: 8
-  big_mem_per_core_gb: 100
+  big_mem_total_gb: 64
+  big_mem_cores: 2
+  big_mem_per_core_gb: 32
 tmp_dir: tmp
 sample_table: ""
-omes: "mg mt"
+omes: "mg"
+# omes can be mg and/or mt
 outputdir: ""
-db_path: /data/idiv_biu/heintzbu/EXTDB/IMP_DBs
+db_path: /zfs/omics/projects/metatools/DEVEL/DBs
+annotation: "mantis"
+# annotation can be mantis or hmmer
 hmm_DBs: "KEGG essential Pfam_A Resfams Cas dbCAN metacyc"
+snps:
+  taxonomy: "s__Escherichia coli,s__Phocaeicola dorei,s__Bifidobacterium infantis,s__Bifidobacterium longum,s__Phocaeicola vulgatus"
+  af_cutoff: 0.99
 collection:
   results: "taxonomy features stats"
+  classifiers: "kraken mOTUs" #can also be EukDetect
 dereplication:
   simple_derep: true
   cross_mapping_rebinning: 

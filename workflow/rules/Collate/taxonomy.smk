@@ -59,9 +59,9 @@ checkpoint collate_EukDetect:
 
 localrules:  ctrl_tax_collation
 
-classifiers=["kraken","mOTUs"]
-if 1 in samples.EukDetect.unique():
-    classifiers.append("EukDetect")
+classifiers=CLASSIFIERS
+#if 1 in samples.EukDetect.unique():
+#    classifiers.append("EukDetect")
 
 rule ctrl_tax_collation:
     input:

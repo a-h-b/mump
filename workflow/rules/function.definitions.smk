@@ -1,7 +1,7 @@
 import os
 import shutil
 from pathlib import Path
-
+import re
 
 # Snakefile
 def open_output(filename):
@@ -288,4 +288,21 @@ def getBam(wildcards):
     ori_sample = wildcards.clusterID.split(".")[0]
     return expand("{raw_directory}/Assembly/mg.reads.sorted.bam",
                 raw_directory=samples.path[ori_sample])
+
+def getBamForSnps(wildcards):
+    ori_sample = re.sub("_bin.[0-9]+$","",wildcards.bin)
+    return expand("{raw_directory}/Assembly/mg.reads.sorted.bam",
+                raw_directory=samples.path[ori_sample])
+
+def getBedForSnps(wildcards):
+    ori_sample = re.sub("_bin.[0-9]+$","",wildcards.bin)
+    ori_bin = re.findall(r'_(bin.[0-9]+)$',wildcards.bin)
+    return expand("{raw_directory}/Binning/MetaWrap/bins/{ori_bin}/contigs.bed",
+                raw_directory=samples.path[ori_sample], ori_bin=ori_bin)
+
+def checkBinPerTax(wildcards):
+    specs = wildcards.species
+    checkpoint_output = checkpoints.prep_bins_snps.get(**wildcards).output[0]
+    return expand("Snps/{species}/{i}.mutect2.filtered.vcf.gz",
+                  i=glob_wildcards("Snps/" + specs + "/{i}.fa").i, species=specs)
 

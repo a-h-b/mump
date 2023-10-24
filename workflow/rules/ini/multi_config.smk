@@ -30,7 +30,7 @@ ENVDIR = srcdir("../../envs")
 
 # get parameters from the command line
 # output
-OUTPUTDIR = config['outputdir']
+OUTPUTDIR = os.path.abspath(os.path.expandvars(config['outputdir']))
 
 MULTI_STEPS = sorted(config['steps'].split())
 
@@ -68,18 +68,45 @@ for sam in samples['sample']:
         with open(spath, 'r') as rhandle:
             multi_config[sam] = yaml.load(rhandle,Loader=yaml.SafeLoader)
     
-samples = samples.assign(mg=[1 if (multi_config[sam]['raws']['Metagenomics'].split() or multi_config[sam]['raws']['Alignment_metagenomics'].split() ) else 0 for sam in samples['sample']])
-samples = samples.assign(mt=[1 if (multi_config[sam]['raws']['Metatranscriptomics'].split() or multi_config[sam]['raws']['Alignment_metatranscriptomics'].split()) else 0 for sam in samples['sample']])
+samples = samples.assign(mg=[1 if (multi_config[sam]['raws']['Metagenomics'].split() or 
+                                   multi_config[sam]['raws']['Alignment_metagenomics'].split() ) else 0 
+                         for sam in samples['sample']])
+samples = samples.assign(mt=[1 if (multi_config[sam]['raws']['Metatranscriptomics'].split() or 
+                                   multi_config[sam]['raws']['Alignment_metatranscriptomics'].split()) else 0 
+                         for sam in samples['sample']])
 if "collate" in MULTI_STEPS:
     COLL_STEPS = sorted(config['collection']['results'].split())
-    samples = samples.assign(taxonomy=[1 if "taxonomy" in multi_config[sam]['steps'].split() and (multi_config[sam]['raws']['Metagenomics'].split() or multi_config[sam]['raws']['Metatranscriptomics'].split()) else 0 for sam in samples['sample']])
-    samples = samples.assign(EukDetect=[1 if "taxonomy" in multi_config[sam]['steps'].split() and (multi_config[sam]['raws']['Metagenomics'].split() or multi_config[sam]['raws']['Metatranscriptomics'].split()) and 'eukdetect' in multi_config[sam] and multi_config[sam]['eukdetect']['run_eukdetect'] else 0 for sam in samples['sample']])
-    samples = samples.assign(stats=[1 if "summary" in multi_config[sam]['steps'].split() and "stats" in multi_config[sam]['summary_steps'].split() else 0 for sam in samples['sample']])
-    for db in config['hmm_DBs'].split():        
-        samples[db] = 0
-        samples[db] = [1 if "analysis" in multi_config[sam]['steps'].split() and db in multi_config[sam]['hmm_DBs'].split() else 0 for sam in samples['sample']]
+    CLASSIFIERS = sorted(config['collection']['classifiers'].split())
+    samples = samples.assign(taxonomy=[1 if "taxonomy" in multi_config[sam]['steps'].split() and 
+                                         (multi_config[sam]['raws']['Metagenomics'].split() or 
+                                           multi_config[sam]['raws']['Metatranscriptomics'].split()) else 0 
+                              for sam in samples['sample']])
+    samples = samples.assign(EukDetect=[1 if "taxonomy" in multi_config[sam]['steps'].split() and 
+                                             (multi_config[sam]['raws']['Metagenomics'].split() or 
+                                               multi_config[sam]['raws']['Metatranscriptomics'].split()) and 
+                                             'eukdetect' in multi_config[sam] and 
+                                             multi_config[sam]['eukdetect']['run_eukdetect'] else 0 
+                              for sam in samples['sample']])
+    samples = samples.assign(stats=[1 if "summary" in multi_config[sam]['steps'].split() and 
+                                         "stats" in multi_config[sam]['summary_steps'].split() else 0 
+                              for sam in samples['sample']])
+    if config['annotation'] == "hmmer":
+        for db in config['hmm_DBs'].split():        
+            samples[db] = 0
+            samples[db] = [1 if "analysis" in multi_config[sam]['steps'].split() and 
+                                 multi_config[sam]['annotation'] == "hmmer" and
+                                 db in multi_config[sam]['hmm_DBs'].split() else 0 
+                           for sam in samples['sample']]
+    elif config['annotation'] == "mantis":
+        for db in ['mantis.cazy','mantis.cog','mantis.enzyme_ec','mantis.go','mantis.is_essential_gene',
+                   'mantis.kegg_ko','mantis.pfam','mantis.tcdb']:
+            samples[db] = 0
+            samples[db] = [1 if "analysis" in multi_config[sam]['steps'].split() and
+                                 multi_config[sam]['annotation'] == "mantis" else 0
+                           for sam in samples['sample']]
 if "catalogue" in MULTI_STEPS:
-    samples = samples.assign(genes=[1 if "analysis" in multi_config[sam]['steps'].split() else 0 for sam in samples['sample']])
+    samples = samples.assign(genes=[1 if "analysis" in multi_config[sam]['steps'].split() else 0 
+                                    for sam in samples['sample']])
     samples["prokka_prefix"] = ""
     for sam in samples['sample']:
         if samples.genes[sam] == 1:
@@ -88,17 +115,27 @@ if "catalogue" in MULTI_STEPS:
                     line = f.readline()
                     samples.loc[samples['sample'] == sam,'prokka_prefix'] = line.split("_")[0][1:]
 if "dereplicate" in MULTI_STEPS:
-    samples = samples.assign(bins=[1 if "binning" in multi_config[sam]['steps'].split() else 0 for sam in samples['sample']])
-    samples = samples.assign(ass=[1 if ("assembly" in multi_config[sam]['steps'].split() or multi_config[sam]['raws']['Contigs'].split()) else 0 for sam in samples['sample']])
+    samples = samples.assign(bins=[1 if "binning" in multi_config[sam]['steps'].split() else 0 
+                                   for sam in samples['sample']])
+    samples = samples.assign(ass=[1 if ("assembly" in multi_config[sam]['steps'].split() or 
+                                        multi_config[sam]['raws']['Contigs'].split()) else 0 
+                                  for sam in samples['sample']])
     samples["assembly_type"] = ""
     for sam in samples['sample']:
         if samples.ass[sam] == 1:
-            samples.loc[samples['sample'] == sam, 'assembly_type'] = [f.replace(".assembly.merged.fa","") for f in os.listdir(samples.path[sam] + "/Assembly/") if fnmatch.fnmatch(f,"m*.assembly.merged.fa")][0]
+            samples.loc[samples['sample'] == sam, 'assembly_type'] = [f.replace(".assembly.merged.fa","") 
+                                                                      for f in os.listdir(samples.path[sam] + "/Assembly/") if 
+                                                                                 fnmatch.fnmatch(f,"m*.assembly.merged.fa")][0]
     if config['dereplication']['cross_mapping_rebinning']['do']:
         if not 'rebinning' in samples.columns:
             samples['rebinning'] = "yes"
-
-#print(samples.EukDetect)
+if "snps" in MULTI_STEPS:
+    if not "dereplicate" in MULTI_STEPS:
+        samples = samples.assign(bins=[1 if "binning" in multi_config[sam]['steps'].split() else 0
+                                       for sam in samples['sample']])
+        samples = samples.assign(tax_bins=[1 if "binning" in multi_config[sam]['steps'].split() and
+                                                "taxonomy" in multi_config[sam]['steps'].split() else 0
+                                           for sam in samples['sample']])
 
 TYPES=config['omes'].split()
 for ome in TYPES:
