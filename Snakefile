@@ -10,9 +10,15 @@ include:
 workdir:
     OUTPUTDIR
 
+
+yaml.add_representer(OrderedDict, lambda dumper, data: dumper.represent_mapping('tag:yaml.org,2002:map', data.items()))
+yaml.add_representer(tuple, lambda dumper, data: dumper.represent_sequence('tag:yaml.org,2002:seq', data))
 yaml.dump(config, open_output('multi.config.yaml'), allow_unicode=True,default_flow_style=False)
 
 # include workflows for data collection, catalogue, dRep and DB
+if 'snps' in MULTI_STEPS:
+    include:
+        "workflow/rules/modules/Snps.smk"
 if 'collate' in MULTI_STEPS:
     include:
         "workflow/rules/modules/Collate.smk"
@@ -28,6 +34,13 @@ if 'DB' in MULTI_STEPS:
 if 'visualize' in MULTI_STEPS:
     include:
         "workflow/rules/modules/Vis.smk"
+
+
+# clean up at the end
+onsuccess:
+    shell("mkdir -p job.errs.outs &>> logs/cleanup.log; ( mv slurm* job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log; ( mv *stdout job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log; ( mv *log job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log; ( mv *logfile job.errs.outs || touch job.errs.outs ) &>> logs/cleanup.log")
+
+
 
 localrules: SamplesPrint, ALL
 # master command
